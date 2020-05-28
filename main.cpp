@@ -29,8 +29,8 @@ public:
     }
 };
 
-template <typename T = base_core, typename = typename std::enable_if<std::is_base_of<base_core, T>::value>::type>
-class base_decoration_1 : virtual public T {
+template <typename Decorator = base_core, typename = typename std::enable_if<std::is_base_of<base_core, Decorator>::value>::type>
+class base_decoration_1 : virtual public Decorator {
 public:
     void func() override {
         cout << "BaseDecoration1Func" << endl;
@@ -42,12 +42,12 @@ public:
 
     bool compare(int& obj) override {
         cout << "BaseDecoration1Compare" << endl;
-        return T::compare(obj) && T::elem == obj;
+        return Decorator::compare(obj) && Decorator::elem == obj;
     }
 };
 
-template <typename T = base_core, typename = typename std::enable_if<std::is_base_of<base_core, T>::value>::type>
-class base_decoration_2 : virtual public T {
+template <typename Decorator = base_core, typename = typename std::enable_if<std::is_base_of<base_core, Decorator>::value>::type>
+class base_decoration_2 : virtual public Decorator {
 public:
     void func() override {
         cout << "BaseDecoration2Func" << endl;
@@ -59,12 +59,12 @@ public:
 
     bool compare(int& obj) override {
         cout << "BaseDecoration2Compare" << endl;
-        return T::compare(obj) && T::elem == obj;
+        return Decorator::compare(obj) && Decorator::elem == obj;
     }
 };
 
-template <typename Decoration = base_core, typename = typename std::enable_if<std::is_base_of<base_core, Decoration>::value>::type>
-class advanced_core : virtual public base_decoration_2<base_core>, virtual public Decoration {
+template <typename Decorator = base_core, typename = typename std::enable_if<std::is_base_of<base_core, Decorator>::value>::type>
+class advanced_core : virtual public base_decoration_2<base_core>, virtual public Decorator {
 public:
     void func() override {
         cout << "AdvancedCoreFunc" << endl;
@@ -76,16 +76,22 @@ public:
 
     bool compare(int& obj) override {
         cout << "AdvancedCoreCompare" << endl;
-        return base_decoration_2<base_core>::compare(obj) && Decoration::compare(obj) && Decoration::elem == obj;
+        return base_decoration_2<base_core>::compare(obj) && Decorator::compare(obj) && Decorator::elem == obj;
     }
+};
+
+class individual_class {
+
 };
 
 int main() {
     {
         std::shared_ptr<base> base = std::make_shared<advanced_core<base_decoration_1<base_decoration_1<base_decoration_2<>>>>>();
-//        base* base = new advanced_core<base_core>();
+//        std::shared_ptr<base> base = std::make_shared<advanced_core<individual_class>>(); // Compilation error
         int a = 6;
         base->compare(a);
+        cout << "\n\n";
+        base->func();
     }
     return 0;
 }
