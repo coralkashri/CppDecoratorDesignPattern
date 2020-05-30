@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <boost/property_tree/ptree.hpp>
+#include <type_traits>
 
 class base {
 public:
@@ -100,9 +101,38 @@ private:
     double another_special_param;
 };
 
-template <class Decorator = base_core, typename = typename std::enable_if<std::is_base_of<base_core, Decorator>::value>::type>
-class advanced_core : virtual public base_decoration_2<>, virtual public Decorator {
+/*template<typename Base = base_core, typename ...Features>
+constexpr bool has_base()
+{
+    return (std::is_base_of<Base, Features>::value || ...);
+}
+
+template<bool IsWrapper, typename ...Features>
+struct get_base_core_wrapper {
+    using type = base_core;
+};
+
+template<typename ...Features>
+struct get_base_core_wrapper<false, Features...> {
+    using type = std::common_type<Features...>;
+};
+
+template<class ...Features>
+struct base_core_wrapper
+{
+    using type = typename std::conditional<
+            has_base<base_core, Features...>(),
+            typename get_base_core_wrapper<false, Features...>::type,
+            typename base_core_wrapper<base_core, Features...>::type
+    >::type;
+};*/
+
+
+template <class ...Decorators>
+class advanced_core : virtual public Decorators... {
 public:
+    static_assert((std::is_base_of<base_core, Decorators>::value && ...), "All decorators must inherit from base_core class.");
+
     virtual ~advanced_core() = default;
 
     void func() override {
@@ -113,7 +143,7 @@ public:
         std::cout << "AdvancedCoreCompare" << std::endl;
         bool is_equal;
         try {
-            is_equal = base_decoration_2::compare(json) && Decorator::compare(json) && json.get<std::string>("advanced_param") == advanced_param;
+            is_equal = (Decorators::compare(json) && ...) && json.get<std::string>("advanced_param") == advanced_param;
         } catch (boost::property_tree::ptree_bad_path &e) {
             is_equal = false;
         }
@@ -121,8 +151,7 @@ public:
     }
 
     void set_params(boost::property_tree::ptree &json) override {
-        Decorator::set_params(json);
-        base_decoration_2::set_params(json);
+        (Decorators::set_params(json), ...);
         advanced_param = json.get<std::string>("advanced_param", "default");
     }
 
@@ -136,7 +165,7 @@ class individual_class {
 
 int main() {
     {
-        std::shared_ptr<base> base = std::make_shared<advanced_core<base_decoration_1<>>>();
+        std::shared_ptr<base> base = std::make_shared<advanced_core<base_decoration_1<>, base_decoration_2<>>>();
         boost::property_tree::ptree json;
         json.put("base_element", 5);
         json.put("decorator_param", 8);
@@ -145,7 +174,7 @@ int main() {
         json.put("another_special_param", 5.23);
         json.put("advanced_param", "value");
         base->set_params(json);
-//        json.put("another_param", 51.3f);
+        json.put("my_special_param", "aa");
         //json.put("my_special_param", "value1");
         // std::shared_ptr<base> base = std::make_shared<advanced_core<>>(json);
         // std::shared_ptr<base> base = std::make_shared<advanced_core<individual_class>>(json); // Compilation error
