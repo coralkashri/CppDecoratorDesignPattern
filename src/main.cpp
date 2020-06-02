@@ -1,4 +1,5 @@
 #include <iostream>
+#include <tuple>
 #include <memory>
 #include <boost/property_tree/ptree.hpp>
 #include <type_traits>
@@ -38,6 +39,56 @@ public:
         base_element = json.get<int>("base_element", 0);
     }
 };
+
+/// <BEGIN><ENABLE_USING_ADVANCED_CORE_WITHOUT_SPECIFIED_BASE_CORE>
+template<typename Base = base_core, typename ...Decorators>
+constexpr bool has_base()
+{
+    return sizeof...(Decorators) && ((std::is_base_of<Base, Decorators>::value || ...));
+}
+
+template< typename ...Decorators>
+struct type_list : virtual public Decorators... {
+    static_assert((std::is_base_of<base_core, Decorators>::value && ...), "All decorators must inherit from base_core class.");
+
+    virtual ~type_list() = default;
+
+    void func() override {
+        (Decorators::func(), ...);
+    }
+
+    bool compare(boost::property_tree::ptree &json) override {
+        return (Decorators::compare(json) && ...);
+    }
+
+    void set_params(boost::property_tree::ptree &json) override {
+        (Decorators::set_params(json), ...);
+    }
+};
+
+template< typename ta, typename tb >
+struct type_cat;
+
+template< typename ... a, typename ... b >
+struct type_cat< type_list< a ... >, type_list< b ... > >
+{ typedef type_list< a ..., b ... > type; };
+
+template<bool IsWrapper, typename ...Features>
+struct get_base_core_wrapper {
+    using type = typename type_cat<type_list<>, type_list<Features...>>::type;
+};
+
+template<typename ...Features>
+struct get_base_core_wrapper<false, Features...> {
+    using type = typename type_cat<type_list<base_core>, type_list<Features...>>::type;
+};
+
+template<class ...Features>
+struct base_core_wrapper
+{
+    using type = typename get_base_core_wrapper<has_base<Features...>(), Features...>::type;
+};
+/// <ENABLE_USING_ADVANCED_CORE_WITHOUT_SPECIFIED_BASE_CORE><END>
 
 template <class Decorator = base_core, typename = typename std::enable_if<std::is_base_of<base_core, Decorator>::value>::type>
 class base_decoration_1 : virtual public Decorator {
@@ -101,38 +152,9 @@ private:
     double another_special_param;
 };
 
-/*template<typename Base = base_core, typename ...Features>
-constexpr bool has_base()
-{
-    return (std::is_base_of<Base, Features>::value || ...);
-}
-
-template<bool IsWrapper, typename ...Features>
-struct get_base_core_wrapper {
-    using type = base_core;
-};
-
-template<typename ...Features>
-struct get_base_core_wrapper<false, Features...> {
-    using type = std::common_type<Features...>;
-};
-
-template<class ...Features>
-struct base_core_wrapper
-{
-    using type = typename std::conditional<
-            has_base<base_core, Features...>(),
-            typename get_base_core_wrapper<false, Features...>::type,
-            typename base_core_wrapper<base_core, Features...>::type
-    >::type;
-};*/
-
-
 template <class ...Decorators>
-class advanced_core : virtual public Decorators... {
+class advanced_core : virtual public base_core_wrapper<Decorators...>::type {
 public:
-    static_assert((std::is_base_of<base_core, Decorators>::value && ...), "All decorators must inherit from base_core class.");
-
     virtual ~advanced_core() = default;
 
     void func() override {
