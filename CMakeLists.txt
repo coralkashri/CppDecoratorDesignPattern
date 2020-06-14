@@ -3,11 +3,9 @@ cmake_minimum_required(VERSION 2.8)
 set(PROJECT_NAME CppDecoratorDesignPattern)
 project(${PROJECT_NAME})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -pthread")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /usr/lib/x86_64-linux-gnu/cmake/gnuradio/ ~/intel/ipp)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /)
-
-find_package(Boost "1.58" REQUIRED ${BOOST_REQUIRED_COMPONENTS})
 
 set(BOOST_REQUIRED_COMPONENTS
         system
@@ -19,7 +17,7 @@ set(BOOST_REQUIRED_COMPONENTS
         date_time
         )
 
-find_package(Boost "1.54.0" REQUIRED ${BOOST_REQUIRED_COMPONENTS})
+find_package(Boost "1.73.0" REQUIRED ${BOOST_REQUIRED_COMPONENTS})
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
