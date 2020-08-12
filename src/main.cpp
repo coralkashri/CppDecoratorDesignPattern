@@ -6,10 +6,9 @@
 
 class base {
 public:
-
     explicit base() : base_element(0) {}
     explicit base(boost::property_tree::ptree &json) {
-        base_element = json.get<int>("base_element", 0);
+        set_self_params(json);
     }
 
     virtual ~base() = default;
@@ -17,11 +16,16 @@ public:
     virtual void func() = 0;
     virtual bool compare(boost::property_tree::ptree&) = 0;
     virtual void set_params(boost::property_tree::ptree &json) {
-        base_element = json.get<int>("base_element", 0);
+        set_self_params(json);
     };
 
 protected:
     int base_element;
+
+private:
+    void set_self_params(boost::property_tree::ptree &json) {
+        base_element = json.get<int>("base_element", 0);
+    }
 };
 
 class base_core : virtual public base {
@@ -68,7 +72,9 @@ template <Decorator D = base_core>
 class base_decoration_1 : virtual public D {
 public:
     explicit base_decoration_1() = default;
-    explicit base_decoration_1(boost::property_tree::ptree &json) : D(json) {}
+    explicit base_decoration_1(boost::property_tree::ptree &json) : D(json) {
+        set_self_params(json);
+    }
 
     virtual ~base_decoration_1() = default;
 
@@ -90,20 +96,26 @@ public:
 
     void set_params(boost::property_tree::ptree &json) override {
         D::set_params(json);
-        decorator_param = json.get<int>("decorator_param", 0);
-        another_param = json.get<float>("another_param", 0.0f);
+        set_self_params(json);
     }
 
 private:
     int decorator_param;
     float another_param;
+
+    void set_self_params(boost::property_tree::ptree &json) {
+        decorator_param = json.get<int>("decorator_param", 0);
+        another_param = json.get<float>("another_param", 0.0f);
+    }
 };
 
 template <Decorator D = base_core>
 class base_decoration_2 : virtual public D {
 public:
     explicit base_decoration_2() = default;
-    explicit base_decoration_2(boost::property_tree::ptree &json) : D(json) {}
+    explicit base_decoration_2(boost::property_tree::ptree &json) : D(json) {
+        set_self_params(json);
+    }
 
     virtual ~base_decoration_2() = default;
 
@@ -125,13 +137,17 @@ public:
 
     void set_params(boost::property_tree::ptree &json) override {
         D::set_params(json);
-        my_special_param = json.get<std::string>("my_special_param", "default");
-        another_special_param = json.get<double>("another_special_param", 0.0);
+        set_self_params(json);
     }
 
 private:
     std::string my_special_param;
     double another_special_param;
+
+    void set_self_params(boost::property_tree::ptree &json) {
+        my_special_param = json.get<std::string>("my_special_param", "default");
+        another_special_param = json.get<double>("another_special_param", 0.0);
+    }
 };
 
 template <Decorator ...Decorators>
@@ -141,11 +157,15 @@ public:
 
     explicit advanced_core(boost::property_tree::ptree &json)
     requires (!base_if_not_exists<base_core, Decorators...>::value)
-    : base_core(json) {}
+    : base_core(json) {
+        set_self_params(json);
+    }
 
     explicit advanced_core(boost::property_tree::ptree &json)
     requires base_if_not_exists<base_core, Decorators...>::value
-    : Decorators(json)... {}
+    : Decorators(json)... {
+        set_self_params(json);
+    }
 
     ~advanced_core() override = default;
 
@@ -176,11 +196,15 @@ public:
             base_core::set_params(json);
         }
         (Decorators::set_params(json), ...);
-        advanced_param = json.get<std::string>("advanced_param", "default");
+        set_self_params(json);
     }
 
 private:
     std::string advanced_param;
+
+    void set_self_params(boost::property_tree::ptree &json) {
+        advanced_param = json.get<std::string>("advanced_param", "default");
+    }
 };
 
 class individual_class {
