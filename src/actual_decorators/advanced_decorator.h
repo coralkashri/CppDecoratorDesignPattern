@@ -8,6 +8,7 @@
 template <Decorator ...Decorators>
 class advanced_core : virtual public base_if_not_exists<base_core, Decorators...>::type, virtual public Decorators... {
 public:
+    std::string advanced_param;
 
     explicit advanced_core(boost::property_tree::ptree &json)
     requires (!base_if_not_exists<base_core, Decorators...>::value)
@@ -54,8 +55,6 @@ public:
     }
 
 private:
-    std::string advanced_param;
-
     void set_self_params(boost::property_tree::ptree &json) {
         advanced_param = json.get<std::string>("advanced_param", "default");
     }

@@ -1,20 +1,19 @@
-#ifndef CPPDECORATORDESIGNPATTERN_BASE_DECORATOR_1_H
-#define CPPDECORATORDESIGNPATTERN_BASE_DECORATOR_1_H
+#ifndef CPPDECORATORDESIGNPATTERN_MULTIPLE_TIMES_DECORATOR_H
+#define CPPDECORATORDESIGNPATTERN_MULTIPLE_TIMES_DECORATOR_H
 
 #include "../interface_core.h"
 #include "../custom_concepts.h"
 
-template <Decorator D = base_core>
-class base_decorator_1 : virtual public D {
+template <size_t ID, Decorator D = base_core>
+class multiple_times_decorator : virtual public D {
 public:
-    int decorator_param;
-    float another_param;
+    int mtd_param;
 
-    explicit base_decorator_1(boost::property_tree::ptree &json) : D(json) {
+    explicit multiple_times_decorator(boost::property_tree::ptree &json) : D(json) {
         set_self_params(json);
     }
 
-    virtual ~base_decorator_1() = default;
+    virtual ~multiple_times_decorator() = default;
 
     void func() override {
         D::func();
@@ -25,7 +24,7 @@ public:
         std::cout << "BaseDecoration1Compare" << std::endl;
         bool is_equal;
         try {
-            is_equal = D::compare(json) && json.get<int>("decorator_param") == decorator_param && json.get<float>("another_param") == another_param;
+            is_equal = D::compare(json) && self_compare(json);
         } catch (boost::property_tree::ptree_bad_path &e) {
             is_equal = false;
         }
@@ -39,9 +38,12 @@ public:
 
 private:
     void set_self_params(boost::property_tree::ptree &json) {
-        decorator_param = json.get<int>("decorator_param", 0);
-        another_param = json.get<float>("another_param", 0.0f);
+        mtd_param = json.get<int>("mtd_" + std::to_string(ID) + "_param", 0);
+    }
+
+    bool self_compare(boost::property_tree::ptree &json) {
+        return json.get<int>("mtd_" + std::to_string(ID) + "_param") == mtd_param;
     }
 };
 
-#endif //CPPDECORATORDESIGNPATTERN_BASE_DECORATOR_1_H
+#endif //CPPDECORATORDESIGNPATTERN_MULTIPLE_TIMES_DECORATOR_H

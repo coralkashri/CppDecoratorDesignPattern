@@ -5,13 +5,16 @@
 #include "../custom_concepts.h"
 
 template <Decorator D = base_core>
-class base_decoration_2 : virtual public D {
+class base_decorator_2 : virtual public D {
 public:
-    explicit base_decoration_2(boost::property_tree::ptree &json) : D(json) {
+    std::string my_special_param;
+    double another_special_param;
+
+    explicit base_decorator_2(boost::property_tree::ptree &json) : D(json) {
         set_self_params(json);
     }
 
-    virtual ~base_decoration_2() = default;
+    virtual ~base_decorator_2() = default;
 
     void func() override {
         D::func();
@@ -35,9 +38,6 @@ public:
     }
 
 private:
-    std::string my_special_param;
-    double another_special_param;
-
     void set_self_params(boost::property_tree::ptree &json) {
         my_special_param = json.get<std::string>("my_special_param", "default");
         another_special_param = json.get<double>("another_special_param", 0.0);
