@@ -30,7 +30,6 @@ private:
 
 class base_core : virtual public base {
 public:
-    explicit base_core() = default;
     explicit base_core(boost::property_tree::ptree &json) : base(json) {}
 
     ~base_core() override = default;
@@ -71,7 +70,6 @@ concept Decorator = std::is_base_of_v<base_core, T>;
 template <Decorator D = base_core>
 class base_decoration_1 : virtual public D {
 public:
-    explicit base_decoration_1() = default;
     explicit base_decoration_1(boost::property_tree::ptree &json) : D(json) {
         set_self_params(json);
     }
@@ -112,7 +110,6 @@ private:
 template <Decorator D = base_core>
 class base_decoration_2 : virtual public D {
 public:
-    explicit base_decoration_2() = default;
     explicit base_decoration_2(boost::property_tree::ptree &json) : D(json) {
         set_self_params(json);
     }
@@ -153,7 +150,6 @@ private:
 template <Decorator ...Decorators>
 class advanced_core : virtual public base_if_not_exists<base_core, Decorators...>::type, virtual public Decorators... {
 public:
-    explicit advanced_core() = default;
 
     explicit advanced_core(boost::property_tree::ptree &json)
     requires (!base_if_not_exists<base_core, Decorators...>::value)
@@ -163,7 +159,7 @@ public:
 
     explicit advanced_core(boost::property_tree::ptree &json)
     requires base_if_not_exists<base_core, Decorators...>::value
-    : Decorators(json)... {
+    : Decorators(json)..., base_core(json) {
         set_self_params(json);
     }
 
@@ -213,8 +209,6 @@ class individual_class {
 
 int main() {
     {
-        std::shared_ptr<base> b = std::make_shared<advanced_core<base_decoration_2<>, base_decoration_1<>>>();
-        //std::shared_ptr<base> b2 = std::make_shared<advanced_core<individual_class>>(json); // Compilation error
         boost::property_tree::ptree json;
         json.put("base_element", 5); // base
         json.put("decorator_param", 8); // base_decoration_1
@@ -223,6 +217,8 @@ int main() {
         json.put("another_special_param", 5.23); // base_decoration_2
         json.put("advanced_param", "value"); // advanced_core
 
+        std::shared_ptr<base> b = std::make_shared<advanced_core<base_decoration_2<>, base_decoration_1<>>>(json);
+        //std::shared_ptr<base> b2 = std::make_shared<advanced_core<individual_class>>(json); // Compilation error
         std::shared_ptr<base> b1 = std::make_shared<advanced_core<>>(json);
 
         std::cout << "~~~~~~~~~~~~~~~~~~~~ b->set_params(json): ~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
