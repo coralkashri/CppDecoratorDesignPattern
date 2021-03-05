@@ -4,8 +4,21 @@
 #include "actual_decorators/base_decorator_1.h"
 #include "actual_decorators/base_decorator_2.h"
 #include "actual_decorators/multiple_times_decorator.h"
+#include "actual_decorators/sub_structure_decorator.h"
+#include "actual_decorators/sub_structure_decorator_2.h"
+#include "actual_decorators/sub_structure_decorator_3.h"
 
 class individual_class {};
+
+void sub_structure_decorator_test() {
+    sub_structure_decorator<sub_structure_decorator_2<>, sub_structure_decorator_3<>> decorator;
+    boost::property_tree::ptree json;
+    json.put("sub_structure_decorator_a", 16); // base
+    json.put("sub_structure_decorator_b", 50); // base_decorator_1
+    json.put("sub_structure_decorator_str", "Custom string"); // base_decorator_1
+    decorator.set_params(json);
+    ((custom_data_2&)(sub_structure_decorator_2<>&)(decorator)).my_str = "My str";
+}
 
 void comparison_test(boost::property_tree::ptree json) {
     std::shared_ptr<base> b = std::make_shared<advanced_core<base_decorator_2<>, base_decorator_1<>>>(json);

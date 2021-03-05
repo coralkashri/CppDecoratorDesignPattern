@@ -17,7 +17,7 @@ set(BOOST_REQUIRED_COMPONENTS
         date_time
         )
 
-find_package(Boost "1.73.0" REQUIRED ${BOOST_REQUIRED_COMPONENTS})
+find_package(Boost "1.71.0" REQUIRED ${BOOST_REQUIRED_COMPONENTS})
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 

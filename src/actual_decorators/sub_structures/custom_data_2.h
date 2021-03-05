@@ -1,0 +1,10 @@
+#ifndef CPPDECORATORDESIGNPATTERN_CUSTOM_DATA_2_H
+#define CPPDECORATORDESIGNPATTERN_CUSTOM_DATA_2_H
+
+#include <string>
+
+struct custom_data_2 {
+    std::string my_str;
+};
+
+#endif //CPPDECORATORDESIGNPATTERN_CUSTOM_DATA_2_H

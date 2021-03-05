@@ -6,7 +6,7 @@
 
 class base_core : virtual public base {
 public:
-    explicit base_core(boost::property_tree::ptree &json) : base(json) {}
+    explicit base_core(const boost::property_tree::ptree &json) : base(json) {}
 
     ~base_core() override = default;
 
@@ -14,7 +14,7 @@ public:
         std::cout << "BaseCoreFunc" << std::endl;
     }
 
-    bool compare(boost::property_tree::ptree &json) override {
+    bool compare(const boost::property_tree::ptree &json) override {
         std::cout << "BaseCoreCompare" << std::endl;
         bool is_equal;
         try {
@@ -25,7 +25,7 @@ public:
         return is_equal;
     }
 
-    void set_params(boost::property_tree::ptree &json) override {
+    void set_params(const boost::property_tree::ptree &json) override {
         base::set_params(json);
     }
 };

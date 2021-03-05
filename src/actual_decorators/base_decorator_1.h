@@ -10,7 +10,7 @@ public:
     int decorator_param;
     float another_param;
 
-    explicit base_decorator_1(boost::property_tree::ptree &json) : D(json) {
+    explicit base_decorator_1(const boost::property_tree::ptree &json) : D(json) {
         set_self_params(json);
     }
 
@@ -21,7 +21,7 @@ public:
         std::cout << "BaseDecoration1Func" << std::endl;
     }
 
-    bool compare(boost::property_tree::ptree &json) override {
+    bool compare(const boost::property_tree::ptree &json) override {
         std::cout << "BaseDecoration1Compare" << std::endl;
         bool is_equal;
         try {
@@ -32,13 +32,13 @@ public:
         return is_equal;
     }
 
-    void set_params(boost::property_tree::ptree &json) override {
+    void set_params(const boost::property_tree::ptree &json) override {
         D::set_params(json);
         set_self_params(json);
     }
 
 private:
-    void set_self_params(boost::property_tree::ptree &json) {
+    void set_self_params(const boost::property_tree::ptree &json) {
         decorator_param = json.get<int>("decorator_param", 0);
         another_param = json.get<float>("another_param", 0.0f);
     }
