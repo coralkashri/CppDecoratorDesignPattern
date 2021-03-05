@@ -15,9 +15,12 @@ void sub_structure_decorator_test() {
     boost::property_tree::ptree json;
     json.put("sub_structure_decorator_a", 16); // base
     json.put("sub_structure_decorator_b", 50); // base_decorator_1
-    json.put("sub_structure_decorator_str", "Custom string"); // base_decorator_1
+    json.put("sub_structure_decorator_str", "My Custom String for decorator"); // base_decorator_1
     decorator.set_params(json);
     ((custom_data_2&)(sub_structure_decorator_2<>&)(decorator)).my_str = "My str";
+    std::cout << ((custom_data_2&)(sub_structure_decorator_2<>&)(decorator)).my_str << std::endl; // Prints "My str"
+    std::cout << ((custom_data_2&)(sub_structure_decorator_3<>&)(decorator)).my_str << std::endl; // Prints deault value ("my_string")
+    std::cout << ((custom_data&)(decorator)).str << std::endl; // Prints "My Custom String for decorator"
 }
 
 void comparison_test(boost::property_tree::ptree json) {
@@ -77,7 +80,9 @@ int main() {
 
         // comparison_test(json);
 
-        access_fields(json);
+        // access_fields(json);
+
+        sub_structure_decorator_test();
 
     }
     return 0;

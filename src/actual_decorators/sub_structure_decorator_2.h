@@ -28,7 +28,7 @@ public:
         bool is_equal;
         try {
             is_equal = D::compare(json) &&
-                    json.get<std::string>("sub_structure_decorator_str") == data.my_str;
+                    json.get<std::string>("sub_structure_decorator_2_str") == data.my_str;
         } catch (boost::property_tree::ptree_bad_path &e) {
             is_equal = false;
         }
@@ -51,7 +51,7 @@ public:
 
 private:
     void set_self_params(const boost::property_tree::ptree &json) {
-        data.my_str = json.get<std::string>("sub_structure_decorator_str", "my_string");
+        data.my_str = json.get<std::string>("sub_structure_decorator_2_str", "my_string");
     }
 
     custom_data_2 data;
